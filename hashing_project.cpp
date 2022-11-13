@@ -15,10 +15,12 @@ typedef struct HashItem
     vector<string> value;
 };
 
-long generateHash(const string word) {
+long generateHash(const string word)
+{
     long hash = 0;
 
-    for (int i = 0; i < word.length(); i++) {
+    for (int i = 0; i < word.length(); i++)
+    {
         hash += (long)pow(word[i], 3);
     }
     return hash % 127031;
@@ -40,29 +42,39 @@ int main()
         }
         inFile.close();
     }
-    else {
-        cout << "Unable to open file" << endl; 
+    else
+    {
+        cout << "Unable to open file" << endl;
         delete[] hashTable;
         exit(1);
     }
 
-    while (1) {
+    while (1)
+    {
         cout << "Enter a word: ";
-        if (getline(cin, searchWord) && !searchWord.empty()) {
+        if (getline(cin, searchWord) && !searchWord.empty())
+        {
             bool found = false;
-            for (string s : hashTable[generateHash(searchWord)].value) {
-                if (s == searchWord) {
-                    cout << "FOUND: " << searchWord << endl << endl << endl;
+            for (string s : hashTable[generateHash(searchWord)].value)
+            {
+                if (s == searchWord)
+                {
+                    cout << "FOUND: " << searchWord << endl
+                         << endl
+                         << endl;
                     found = true;
                     break;
                 }
-                else {
+                else
+                {
                     cout << "Collision: " << s << endl;
                 }
             }
-            if (!found) cout << "NOT FOUND.\n\n\n";
+            if (!found)
+                cout << "NOT FOUND.\n\n\n";
         }
-        else {
+        else
+        {
             break;
         }
     }
