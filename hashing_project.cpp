@@ -12,7 +12,7 @@ using namespace std;
 
 constexpr unsigned long HASH_TABLE_SIZE = 127031UL;
 
-typedef struct HashItem 
+typedef struct HashItem
 {
     int flag; // 0 : empty value, 1 : have value 
     string value;
@@ -58,7 +58,7 @@ void displayNotFound() {
     cout << "NOT FOUND.\n\n\n";
 }
 
-bool search(const string word,const HashItem hashTable[]) {
+bool search(const string word, const HashItem hashTable[]) {
     unsigned long hash = createHashKey(word);
 
     if (hashTable[hash].flag) { // flag == 1, have value
@@ -66,7 +66,7 @@ bool search(const string word,const HashItem hashTable[]) {
             displayFound(word);
             return true;
         }
-        else 
+        else
         {
             // have collistion
             unsigned long j = 1;
@@ -75,7 +75,7 @@ bool search(const string word,const HashItem hashTable[]) {
 
                 // next hash value
                 hash = ((j * j) + hash) % HASH_TABLE_SIZE;
-                if (! hashTable[hash].flag) { // flag == 0, empty
+                if (!hashTable[hash].flag) { // flag == 0, empty
                     displayNotFound();
                     return false;
                 }
@@ -91,7 +91,7 @@ bool search(const string word,const HashItem hashTable[]) {
             } while (1);
         }
     }
-    
+
     displayNotFound();
     return false;
 }
