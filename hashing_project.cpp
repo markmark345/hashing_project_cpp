@@ -10,63 +10,132 @@
 
 using namespace std;
 
-typedef struct HashItem
+constexpr unsigned long HASH_TABLE_SIZE = 127031UL;
+
+typedef struct HashItem 
 {
-    vector<string> value;
+    int flag; // 0 : empty value, 1 : have value 
+    string value;
+
+    HashItem() : flag(0), value() {}; // constructor and initialize default value
 };
 
-long generateHash(const string word) {
-    long hash = 0;
-
+unsigned long createHashKey(const string word) {
+    unsigned long key = 0;
     for (int i = 0; i < word.length(); i++) {
-        hash += (long)pow(word[i], 3);
+        key += (unsigned long)pow(word[i], 3);
     }
-    return hash % 127031;
+    return key % HASH_TABLE_SIZE;
 }
 
-int main()
-{
-    HashItem *hashTable = new HashItem[127031];
+void quadraticHashing(const string word, HashItem hashTable[]) {
+    unsigned long hash = createHashKey(word);
+
+    if (hashTable[hash].flag) {
+        // hash has value
+        // find next hash
+        for (unsigned long j = 1; j < HASH_TABLE_SIZE; j++) {
+            hash = ((j * j) + hash) % HASH_TABLE_SIZE;
+            if (!hashTable[hash].flag) {
+                hashTable[hash].value = word;
+                hashTable[hash].flag = 1;
+                break;
+            }
+        }
+    }
+    else {
+        // empty hash
+        hashTable[hash].value = word;
+        hashTable[hash].flag = 1;
+    }
+}
+
+void displayFound(const string word) {
+    cout << "FOUND: " << word << endl << endl << endl;
+}
+
+void displayNotFound() {
+    cout << "NOT FOUND.\n\n\n";
+}
+
+bool search(const string word,const HashItem hashTable[]) {
+    unsigned long hash = createHashKey(word);
+
+    if (hashTable[hash].flag) { // flag == 1, have value
+        if (word == hashTable[hash].value) { // check word is hash'value
+            displayFound(word);
+            return true;
+        }
+        else 
+        {
+            // have collistion
+            unsigned long j = 1;
+            do {
+                cout << "Collision: " << hashTable[hash].value << endl;
+
+                // next hash value
+                hash = ((j * j) + hash) % HASH_TABLE_SIZE;
+                if (! hashTable[hash].flag) { // flag == 0, empty
+                    displayNotFound();
+                    return false;
+                }
+                else if (word == hashTable[hash].value) {
+                    // hash has value so compare
+                    displayFound(word);
+                    return true;
+                }
+                else {
+                    j++;
+                }
+
+            } while (1);
+        }
+    }
+    
+    displayNotFound();
+    return false;
+}
+
+bool initDict(HashItem hashTable[]) {
     ifstream inFile;
-    string line;
-    string searchWord;
 
     inFile.open("dict.txt");
     if (inFile.is_open())
     {
+        string line;
         while (getline(inFile, line))
         {
-            hashTable[generateHash(line)].value.push_back(line);
+            quadraticHashing(line, hashTable);
         }
         inFile.close();
     }
     else {
-        cout << "Unable to open file" << endl; 
-        delete[] hashTable;
-        exit(1);
+        cout << "Unable to open file" << endl;
+        return false;
     }
+    return true;
+}
 
-    while (1) {
-        cout << "Enter a word: ";
-        if (getline(cin, searchWord) && !searchWord.empty()) {
-            bool found = false;
-            for (string s : hashTable[generateHash(searchWord)].value) {
-                if (s == searchWord) {
-                    cout << "FOUND: " << searchWord << endl << endl << endl;
-                    found = true;
-                    break;
-                }
-                else {
-                    cout << "Collision: " << s << endl;
-                }
+int main()
+{
+    HashItem* hashTable = new HashItem[HASH_TABLE_SIZE];
+    bool res = initDict(hashTable);
+    if (res) {
+
+        while (1) {
+
+            string searchWord;
+            cout << "Enter a word: ";
+            if (getline(cin, searchWord) && !searchWord.empty()) {
+
+                search(searchWord, hashTable);
             }
-            if (!found) cout << "NOT FOUND.\n\n\n";
-        }
-        else {
-            break;
+            else {
+                break;
+            }
         }
     }
 
     delete[] hashTable;
-    return 0;
+    return (res) ? 0 : 1;
 }
