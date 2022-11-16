@@ -17,13 +17,13 @@ typedef struct HashItem
     int flag; // 0 : empty value, 1 : have value 
     string value;
 
-    HashItem() : flag(0), value() {}; // constructor and initialize default value
-};
+    HashItem() : flag{ 0 }, value() {}; // constructor and initialize default value
+} HashItem;
 
 unsigned long createHashKey(const string word) {
     unsigned long key = 0;
     for (int i = 0; i < word.length(); i++) {
-        key += (unsigned long)pow(word[i], 3);
+        key += static_cast<unsigned long>(pow(word[i], 3));
     }
     return key % HASH_TABLE_SIZE;
 }
